@@ -7,7 +7,7 @@ engine = create_engine("sqlite:///uny_loft.db",
 session = Session(bind=engine)  # запуск сесии
 
 
-def create_user(call): #creating new user
+def create_user(call):  # creating new user
     if session.query(Users).filter(
             Users.user_id.like(f"{call.from_user.id}")).count() == 0:
         user = Users(
@@ -18,7 +18,7 @@ def create_user(call): #creating new user
         session.commit()
 
 
-def new_direct(call): #adding new direct to user's profile
+def new_direct(call):  # adding new direct to user's profile
     user_id = call.from_user.id
     pd_code = call.data.split("_")[1]
     pd_id = session.query(Proffesional_Directions).filter(
@@ -36,7 +36,7 @@ def new_direct(call): #adding new direct to user's profile
         session.commit()
 
 
-def new_subj(call): #adding new subject to user's profile
+def new_subj(call):  # adding new subject to user's profile
     user_id = call.from_user.id
     subj_code = call.data.split("_")[1]
     subj_id = session.query(Subjects).filter(
@@ -54,7 +54,7 @@ def new_subj(call): #adding new subject to user's profile
         session.commit()
 
 
-def clear_subj(call): #clear all subjects of current user
+def clear_subj(call):  # clear all subjects of current user
     user_id = call.from_user.id
     session.query(Users_Subjects).filter(
         Users_Subjects.user.like(f"{user_id}")
@@ -62,7 +62,7 @@ def clear_subj(call): #clear all subjects of current user
     session.commit()
 
 
-def clear_direct(call): #clear all direct of current user
+def clear_direct(call):  # clear all direct of current user
     user_id = call.from_user.id
     session.query(Users_Directions).filter(
         Users_Directions.user.like(f"{user_id}")
@@ -70,12 +70,12 @@ def clear_direct(call): #clear all direct of current user
     session.commit()
 
 
-def clear_all(call): #clear all search_params
+def clear_all(call):  # clear all search_params
     clear_subj(call)
     clear_direct(call)
 
 
-def new_city_blacklist(call): #adding new city to user's city_blacklist
+def new_city_blacklist(call):  # adding new city to user's city_blacklist
     user_id = call.from_user.id
     city = session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().current_city
     u_c = Users_Cities(
@@ -86,19 +86,19 @@ def new_city_blacklist(call): #adding new city to user's city_blacklist
     session.commit()
 
 
-def current_city(city_title, user_id):#seting city of current university in user profile
+def current_city(city_title, user_id):  # seting city of current university in user profile
     city_id = session.query(Cities).filter(
         Cities.city_title.like(f"{city_title}")).first().city_id
     session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().current_city = city_id
     session.commit()
 
 
-def current_url(url, user_id): #seting url of current university in user profile
+def current_url(url, user_id):  # seting url of current university in user profile
     session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().current_url = url
     session.commit()
 
 
-def list_of_directions_curr_user(user_id, code=True): #return list of directions current user
+def list_of_directions_curr_user(user_id, code=True):  # return list of directions current user
     directions = session.query(Users_Directions).filter(
         Users_Directions.user.like(f"{user_id}")
     ).all()
@@ -114,7 +114,7 @@ def list_of_directions_curr_user(user_id, code=True): #return list of directions
     return pd_list
 
 
-def new_fav(user_id): #adding new fav to user's fav_list
+def new_fav(user_id):  # adding new fav to user's fav_list
     fav = session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().current_url
     if session.query(Users_Subjects).filter(
             Users_Favorites.fav_url.like(f"{fav}"),
@@ -128,16 +128,16 @@ def new_fav(user_id): #adding new fav to user's fav_list
         session.commit()
 
 
-def set_ege_score_curr_user(user_id, score): #seting new ege_score for user
+def set_ege_score_curr_user(user_id, score):  # seting new ege_score for user
     session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().ege_score = score
     session.commit()
 
 
-def get_ege_score_curr_user(user_id): #return ege_score current user
+def get_ege_score_curr_user(user_id):  # return ege_score current user
     return session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().ege_score
 
 
-def list_of_favorites_curr_user(user_id): #return list of favorites current user
+def list_of_favorites_curr_user(user_id):  # return list of favorites current user
     favorites = session.query(Users_Favorites).filter(
         Users_Favorites.user.like(f"{user_id}")
     ).all()
@@ -147,7 +147,8 @@ def list_of_favorites_curr_user(user_id): #return list of favorites current user
     return "\n".join(fav_list)
 
 
-def list_of_subjects_curr_user(user_id, code=True): #return list of subject current user (code or name)
+def list_of_subjects_curr_user(user_id,
+                               code=True):  # return list of subject current user (code or name)
     subjects = session.query(Users_Subjects).filter(
         Users_Subjects.user.like(f"{user_id}")
     ).all()
@@ -163,7 +164,7 @@ def list_of_subjects_curr_user(user_id, code=True): #return list of subject curr
     return subj_list
 
 
-def list_of_cities(): #return list of all cities
+def list_of_cities():  # return list of all cities
     cities_list = []
     cities = session.query(Cities).all()
     for city in cities:
@@ -171,7 +172,7 @@ def list_of_cities(): #return list of all cities
     return cities_list
 
 
-def list_city_curr_user(user_id): #return list of cities excluding user's blacklist
+def list_city_curr_user(user_id):  # return list of cities excluding user's blacklist
     city_list = set(list_of_cities())
     black_list = set()
     user_city_blacklist = session.query(Users_Cities).filter(
@@ -183,7 +184,7 @@ def list_city_curr_user(user_id): #return list of cities excluding user's blackl
     return list(city_list.difference(black_list))
 
 
-def gen_subj_url(user_id): #generating new url using user's subjects
+def gen_subj_url(user_id):  # generating new url using user's subjects
     city_list = list_city_curr_user(user_id)
     subj_list = list_of_subjects_curr_user(user_id)
     city = random.choice(city_list)
@@ -191,7 +192,7 @@ def gen_subj_url(user_id): #generating new url using user's subjects
     return url
 
 
-def search_params(call): #return all search params of current user
+def search_params(call):  # return all search params of current user
     user_id = call.from_user.id
     subj_list = "\n".join(list_of_subjects_curr_user(user_id, code=False))
     dir_list = "\n".join(list_of_directions_curr_user(user_id, code=False))

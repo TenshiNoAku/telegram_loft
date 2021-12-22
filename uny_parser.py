@@ -1,11 +1,11 @@
-#(dies from cringe)
+# (dies from cringe)
 import random
 
 import requests
 from bs4 import BeautifulSoup
 
 
-def rand_uny(url=f'https://vuzopedia.ru/region/city/59/;'): #parsing url
+def rand_uny(url=f"https://vuzopedia.ru/region/city/59/;"):  # parsing url
     # url for parse
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "lxml")

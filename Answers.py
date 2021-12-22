@@ -1,4 +1,4 @@
-#this modeule be reworked(dies from cringe)
+# this modeule be reworked(dies from cringe)
 
 
 hellow_answer = """🤖 Вас приветствует LOFTBot,

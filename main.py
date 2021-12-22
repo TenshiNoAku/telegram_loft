@@ -7,7 +7,7 @@ from uny_parser import *
 from Answers import *
 
 print(datetime.datetime.now().strftime("%d.%m.%Y"))
-Token = open("Token.txt","r").readline()  # Bot's Token
+Token = open("Token.txt", "r").readline()  # Bot's Token
 bot = telebot.TeleBot(Token, parse_mode=None)  # bot creation
 
 
@@ -102,7 +102,7 @@ def callback_inline(call):  # Feedback Handler
                     clear_direct(call)
                 if call.data == "clear_all":
                     clear_all(call)
-    except Exception as ex: #Troubles?
+    except Exception as ex:  # Troubles?
         print(ex)
 
 
