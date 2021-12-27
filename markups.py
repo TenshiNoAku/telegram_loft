@@ -7,7 +7,7 @@ def main_markup():
     item2 = types.KeyboardButton("📖 Предметы")  # кнопка для клавиатуры
     item3 = types.KeyboardButton("💯 Баллы ЕГЭ")  # кнопка для клавиатуры
     item4 = types.KeyboardButton("💼 Направления")  # кнопка для клавиатуры
-    item5 = types.KeyboardButton("Параметры поиска")  # кнопка для клавиатуры
+    item5 = types.KeyboardButton("⚙ Параметры поиска")  # кнопка для клавиатуры
     item6 = types.KeyboardButton("🍀 Мне повезет")  # кнопка для клавиатуры
     mark_up.add(item1, item2, item3, item4, item5, item6)
     return mark_up
@@ -15,10 +15,20 @@ def main_markup():
 
 def random_uny_markup():
     mark_up = types.ReplyKeyboardMarkup(resize_keyboard=True)  # Клавиатура
-    item1 = types.KeyboardButton("По ЕГЭ")  # кнопка для клавиатуры
-    item2 = types.KeyboardButton("По направлениям")  # кнопка для клавиатуры
-    item3 = types.KeyboardButton("Назад")  # кнопка для клавиатуры
+    item1 = types.KeyboardButton("🔎 Найти ВУЗ")  # кнопка для клавиатуры
+    item2 = types.KeyboardButton("🔄 Сменить поиск")  # кнопка для клавиатуры
+    item3 = types.KeyboardButton("🔙 Назад")  # кнопка для клавиатуры
     mark_up.add(item1, item2, item3)
+    return mark_up
+
+
+def change_search_type_markup():
+    mark_up = types.InlineKeyboardMarkup(row_width=3)
+    item1 = types.InlineKeyboardButton("По ЕГЭ",
+                                       callback_data="search_ege")
+    item2 = types.InlineKeyboardButton("По направлениям",
+                                       callback_data="search_dir")
+    mark_up.add(item1, item2)
     return mark_up
 
 
@@ -57,7 +67,7 @@ def subjects_markup():
     item11 = types.InlineKeyboardButton("Иностранные языки",
                                         callback_data="subj_egeinyaz")  # кнопки для клавиатуры
     item12 = types.InlineKeyboardButton("Очистить",
-                                        callback_data="clean_subj")
+                                        callback_data="clear_subj")
     mark_up.add(item2, item3, item4, item5, item6, item7, item8, item9, item10, item11,
                 item12)
     return mark_up
@@ -86,16 +96,16 @@ def directs_markup():
     item19 = types.InlineKeyboardButton("Транспортное", callback_data="dir_transportnye")
     item20 = types.InlineKeyboardButton("Пищевое", callback_data="dir_pishevye")
     item21 = types.InlineKeyboardButton("Юридическое", callback_data="dir_yuridicheski")
-    item22 = types.InlineKeyboardButton("Очистить", callback_data="clean_dir")
+    item22 = types.InlineKeyboardButton("Очистить", callback_data="clear_dir")
     mark_up.add(item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11,
                 item12, item13, item14, item15, item16, item17, item18, item19, item20, item21,
                 item22)
     return mark_up
 
 
-def university_search():
+def university_search_markup():
     mark_up = types.InlineKeyboardMarkup(row_width=3)
-    item1 = types.InlineKeyboardButton("Добавить с избранное", callback_data="search_favorites")
+    item1 = types.InlineKeyboardButton("Добавить в избранное", callback_data="search_favorites")
     item2 = types.InlineKeyboardButton("Убрать город из поиска",
                                        callback_data="search_city_blacklist")
     # item3 = types.InlineKeyboardButton("Следующий универ",callback_data="search_next")

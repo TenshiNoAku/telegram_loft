@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, Integer, String, \
-    Column, ForeignKey
+    Column, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -20,6 +20,7 @@ class Users(Base):  # table Users
                          default="https://vuzopedia.ru/region/city/59")
     current_city = Column(String(60), nullable=True)
     ege_score = Column(Integer, default=300)
+    dir_search = Column(Boolean, default=0)
 
 
 class Subjects(Base):  # table Subjects

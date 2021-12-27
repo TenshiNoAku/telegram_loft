@@ -18,9 +18,57 @@ def create_user(call):  # creating new user
         session.commit()
 
 
-def new_direct(call):  # adding new direct to user's profile
-    user_id = call.from_user.id
-    pd_code = call.data.split("_")[1]
+def del_direct(user_id, pd_code):
+    pd_id = session.query(Proffesional_Directions).filter(
+        Proffesional_Directions.pd_code.like(f"{pd_code}")
+    ).first().pd_id
+    if session.query(Users_Directions).filter(
+            Users_Directions.direction.like(f"{pd_id}"),
+            Users_Directions.user.like(f"{user_id}")
+    ).count() == 1:
+        session.query(Users_Directions).filter(
+            Users_Directions.user.like(f"{user_id}"),
+            Users_Directions.direction.like(f"{pd_id}")
+        ).delete(synchronize_session=False)
+        session.commit()
+
+
+def del_subj(user_id, subj_code):
+    subj_id = session.query(Subjects).filter(
+        Subjects.subject_code.like(f"{subj_code}")
+    ).first().subject_id
+    if session.query(Users_Subjects).filter(
+            Users_Subjects.subject.like(f"{subj_id}"),
+            Users_Subjects.user.like(f"{user_id}")
+    ).count() == 1:
+        session.query(Users_Subjects).filter(
+            Users_Subjects.user.like(f"{user_id}"),
+            Users_Subjects.subject.like(f"{subj_id}")
+        ).delete(synchronize_session=False)
+        session.commit()
+
+
+def check_dir_search(user_id):
+    return session.query(Users).filter(
+        Users.user_id.like(f"{user_id}")
+    ).first().dir_search
+
+
+def change_dir_search(user_id, dir_search):
+    session.query(Users).filter(
+        Users.user_id.like(f"{user_id}")
+    ).first().dir_search = dir_search
+    session.commit()
+    return "✅ Поиск изменен"
+
+
+def new_direct(call, semant=False):
+    if semant:
+        user_id = call["user_id"]
+        pd_code = call["pd_code"]
+    else:  # adding new direct to user's profile
+        user_id = call.from_user.id
+        pd_code = call.data.split("_")[1]
     pd_id = session.query(Proffesional_Directions).filter(
         Proffesional_Directions.pd_code.like(f"{pd_code}")
     ).first().pd_id
@@ -34,11 +82,19 @@ def new_direct(call):  # adding new direct to user's profile
         )
         session.add(user_direction)
         session.commit()
+        return "✅ Предмет добавлен"
+    else:
+        del_direct(user_id, pd_code)
+        return "❌ Предмет удален"
 
 
-def new_subj(call):  # adding new subject to user's profile
-    user_id = call.from_user.id
-    subj_code = call.data.split("_")[1]
+def new_subj(call, semant=False):  # adding new subject to user's profile
+    if semant:
+        user_id = call["user_id"]
+        subj_code = call["subj_code"]
+    else:
+        user_id = call.from_user.id
+        subj_code = call.data.split("_")[1]
     subj_id = session.query(Subjects).filter(
         Subjects.subject_code.like(f"{subj_code}")
     ).first().subject_id
@@ -52,6 +108,10 @@ def new_subj(call):  # adding new subject to user's profile
         )
         session.add(user_subject)
         session.commit()
+        return "✅ Предмет добавлен"
+    else:
+        del_subj(user_id, subj_code)
+        return "❌ Предмет убран"
 
 
 def clear_subj(call):  # clear all subjects of current user
@@ -60,6 +120,7 @@ def clear_subj(call):  # clear all subjects of current user
         Users_Subjects.user.like(f"{user_id}")
     ).delete(synchronize_session=False)
     session.commit()
+    return "Все предметы удалены из поиска"
 
 
 def clear_direct(call):  # clear all direct of current user
@@ -68,6 +129,7 @@ def clear_direct(call):  # clear all direct of current user
         Users_Directions.user.like(f"{user_id}")
     ).delete(synchronize_session=False)
     session.commit()
+    return "Направления удалины из поиска"
 
 
 def clear_all(call):  # clear all search_params
@@ -84,6 +146,7 @@ def new_city_blacklist(call):  # adding new city to user's city_blacklist
     )
     session.add(u_c)
     session.commit()
+    return "✅ Город добавлен в черный список"
 
 
 def current_city(city_title, user_id):  # seting city of current university in user profile
@@ -115,7 +178,7 @@ def list_of_directions_curr_user(user_id, code=True):  # return list of directio
 
 
 def new_fav(user_id):  # adding new fav to user's fav_list
-    fav = session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().current_url
+    fav = session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().current_url[:-5]
     if session.query(Users_Subjects).filter(
             Users_Favorites.fav_url.like(f"{fav}"),
             Users_Favorites.user.like(f"{user_id}")
@@ -126,11 +189,13 @@ def new_fav(user_id):  # adding new fav to user's fav_list
         )
         session.add(u_f)
         session.commit()
+    return "✅ ВУЗ добавлен в избранное"
 
 
 def set_ege_score_curr_user(user_id, score):  # seting new ege_score for user
     session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().ege_score = score
     session.commit()
+    return "✅ Баллы ЕГЭ установлены!"
 
 
 def get_ege_score_curr_user(user_id):  # return ege_score current user
@@ -144,7 +209,10 @@ def list_of_favorites_curr_user(user_id):  # return list of favorites current us
     fav_list = []
     for fav in favorites:
         fav_list.append(fav.fav_url)
-    return "\n".join(fav_list)
+    if fav_list:
+        return "\n".join(fav_list)
+    else:
+        return "💡 Вы еще не добавили ни один ВУЗ в избранное"
 
 
 def list_of_subjects_curr_user(user_id,
@@ -188,7 +256,21 @@ def gen_subj_url(user_id):  # generating new url using user's subjects
     city_list = list_city_curr_user(user_id)
     subj_list = list_of_subjects_curr_user(user_id)
     city = random.choice(city_list)
-    url = f"https://vuzopedia.ru/region/city/{city}/poege/egerus;{';'.join(random.choices(subj_list, k=2))}"
+    try:
+        url = f"https://vuzopedia.ru/region/city/{city}/poege/egerus;{';'.join(random.choices(subj_list, k=2))}"
+    except Exception as ex:
+        url = f"https://vuzopedia.ru/region/city/{city}/poege/egerus"
+    return url
+
+
+def gen_dir_url(user_id):  # generating new url using user's subjects
+    city_list = list_city_curr_user(user_id)
+    dir_list = list_of_directions_curr_user(user_id)
+    city = random.choice(city_list)
+    try:
+        url = f"https://vuzopedia.ru/region/city/{city}?s={random.choice(dir_list)}"
+    except Exception as ex:
+        url = f"https://vuzopedia.ru/region/city/{city}?s=fsb"
     return url
 
 

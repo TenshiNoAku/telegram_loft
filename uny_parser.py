@@ -1,12 +1,13 @@
 # (dies from cringe)
 import random
-
+import pymorphy2
 import requests
 from bs4 import BeautifulSoup
 
 
-def rand_uny(url=f"https://vuzopedia.ru/region/city/59/;"):  # parsing url
+def rand_uny(dir_search, url=f"https://vuzopedia.ru/region/city/59?s=aviacionnye"):  # parsing url
     # url for parse
+    morph = pymorphy2.MorphAnalyzer()
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "lxml")
     titles = soup.find_all("div", class_="itemVuzTitle")
@@ -14,11 +15,13 @@ def rand_uny(url=f"https://vuzopedia.ru/region/city/59/;"):  # parsing url
         return None
     city = soup.find_all("h4")[0]
     city = city.text.strip().split(" ")
-
-    if city[4] == "с":
-        city_title = city[3]
+    if dir_search:
+        city_title = morph.parse(city[3])[0].normal_form.title()
     else:
-        city_title = city[3] + city[4]
+        if city[4] == "с":
+            city_title = city[3]
+        else:
+            city_title = city[3] + city[4]
     uni_parametrs = soup.find_all("a", class_="tooltipq")[4:]  # universities  parameters
     flag = True
     counter = 0  # counter of universities
@@ -53,4 +56,5 @@ def rand_uny(url=f"https://vuzopedia.ru/region/city/59/;"):  # parsing url
             flag = True  # new university
             counter += 1  # id university
             un_list.append(d)  # add university to list
-    return un_list[random.randint(0, len(titles) - 1)]  # return random university from the list
+    if un_list:
+        return un_list[random.randint(0, len(titles) - 1)]  # return random university from the list
