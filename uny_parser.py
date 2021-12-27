@@ -6,9 +6,10 @@ from bs4 import BeautifulSoup
 
 
 def rand_uny(dir_search, url=f"https://vuzopedia.ru/region/city/59?s=aviacionnye"):  # parsing url
-    # url for parse
     morph = pymorphy2.MorphAnalyzer()
-    response = requests.get(url)
+    response = requests.get(url, headers={
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                      '(KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36'})
     soup = BeautifulSoup(response.text, "lxml")
     titles = soup.find_all("div", class_="itemVuzTitle")
     if len(titles) == 0:  # we have a university with the given parameters?

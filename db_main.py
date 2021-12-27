@@ -29,8 +29,7 @@ class Subjects(Base):  # table Subjects
     subject_name = Column(String(50), nullable=False)
     subject_code = Column(String(10), nullable=False)
 
-
-class Proffesional_Directions(Base):  # table Proffesional_Directions
+class Professional_Directions(Base):  # table Professional_Directions
     __tablename__ = "directions"
     pd_id = Column(Integer, primary_key=True)
     pd_name = Column(String(50), nullable=False)

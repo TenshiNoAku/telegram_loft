@@ -49,8 +49,6 @@ def semant_parser(text, user_id):
     morph = pymorphy2.MorphAnalyzer()
     text = text.split(" ")
     for i in text:
-        print(morph.parse(i))
-    for i in text:
         if bool(morph.parse(i)[0].normal_form in func_dir.keys()):
             func_code = func_dir[morph.parse(i)[0].normal_form]
             break

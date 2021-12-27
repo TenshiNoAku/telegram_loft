@@ -29,6 +29,15 @@ def semant(message):
                      semant_parser(" ".join(message.text.split(" ")[1:]), message.from_user.id))
 
 
+@bot.message_handler(commands=["help"])
+def help(message):
+    bot.send_message(message.chat.id,
+                     """/start - возвращает на стартовый экран (если возникли проблемы с командной строкой)
+/semant {команда} - позволяет использовать словесные команды для удаления и добавления предметов/направлений
+Например: "/semant удалить информатику из списка предметов" """,
+                     )
+
+
 @bot.message_handler()
 def word_comands(message):  # word command processing
     if message.text == "🍀 Мне повезет":
@@ -78,15 +87,17 @@ def word_comands(message):  # word command processing
         bot.send_message(message.chat.id,
                          fav_answ(list_of_favorites_curr_user(message.from_user.id)))
     elif message.text == "💼 Направления":
-        bot.send_message(message.chat.id, "1", reply_markup=directs_markup())
+        bot.send_message(message.chat.id, "Выберите направление:", reply_markup=directs_markup())
     elif message.text == "💯 Баллы ЕГЭ":
         bot.send_message(message.chat.id,
                          "Сколько у тебя баллов?💯",
                          reply_markup=set_ege_markup())
     elif message.text == "⚙ Параметры поиска":
         bot.send_message(message.chat.id, params_answ(*search_params(message)))
+    elif message.text == "🚫Очистить ЧС городов":
+        bot.send_message(message.chat.id, clear_blacklist(message))
     elif message.text == "🔙 Назад":
-        bot.send_message(message.chat.id, "Возвращаемся на главную страницу.....",
+        bot.send_message(message.chat.id, "Возвращаемся на главную страницу....",
                          reply_markup=main_markup())
     else:
         bot.send_message(message.chat.id, "💡 Неизвестная команда")
@@ -107,10 +118,8 @@ def callback_inline(call):  # Feedback Handler
                 bot.send_message(call.message.chat.id, new_subj(call))
             elif call.data.startswith("search"):  # call.data is search handler
                 if call.data == "search_city_blacklist":
-                    # bot.delete_message(call.message.chat.id, call.message.message_id)
                     bot.send_message(call.message.chat.id, new_city_blacklist(call))
                 elif call.data == "search_favorites":  # call.data is facorites handler
-                    # bot.delete_message(call.message.chat.id, call.message.message_id)
                     bot.send_message(call.message.chat.id, new_fav(call.from_user.id))
                 elif call.data == "search_dir":
                     bot.delete_message(call.message.chat.id, call.message.message_id)
@@ -146,8 +155,9 @@ def poll():
     bot.polling(True)
 
 
-try:
-    poll()
-except requests.exceptions.Timeout:
-    print("Timeout occurred")
-    time.sleep(3)
+while True:
+    try:
+        poll()
+    except requests.exceptions.Timeout:
+        print("Timeout occurred")
+        time.sleep(3)

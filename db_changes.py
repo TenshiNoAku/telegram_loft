@@ -18,9 +18,9 @@ def create_user(call):  # creating new user
         session.commit()
 
 
-def del_direct(user_id, pd_code):
-    pd_id = session.query(Proffesional_Directions).filter(
-        Proffesional_Directions.pd_code.like(f"{pd_code}")
+def del_direct(user_id, pd_code): #delete curr direction
+    pd_id = session.query(Professional_Directions).filter(
+        Professional_Directions.pd_code.like(f"{pd_code}")
     ).first().pd_id
     if session.query(Users_Directions).filter(
             Users_Directions.direction.like(f"{pd_id}"),
@@ -33,7 +33,7 @@ def del_direct(user_id, pd_code):
         session.commit()
 
 
-def del_subj(user_id, subj_code):
+def del_subj(user_id, subj_code): #delete curr subj
     subj_id = session.query(Subjects).filter(
         Subjects.subject_code.like(f"{subj_code}")
     ).first().subject_id
@@ -48,13 +48,13 @@ def del_subj(user_id, subj_code):
         session.commit()
 
 
-def check_dir_search(user_id):
+def check_dir_search(user_id): #checking dir search curr user
     return session.query(Users).filter(
         Users.user_id.like(f"{user_id}")
     ).first().dir_search
 
 
-def change_dir_search(user_id, dir_search):
+def change_dir_search(user_id, dir_search): #change dir search curr user
     session.query(Users).filter(
         Users.user_id.like(f"{user_id}")
     ).first().dir_search = dir_search
@@ -62,15 +62,15 @@ def change_dir_search(user_id, dir_search):
     return "✅ Поиск изменен"
 
 
-def new_direct(call, semant=False):
+def new_direct(call, semant=False):# adding new direct to user's profile
     if semant:
         user_id = call["user_id"]
         pd_code = call["pd_code"]
-    else:  # adding new direct to user's profile
+    else:
         user_id = call.from_user.id
         pd_code = call.data.split("_")[1]
-    pd_id = session.query(Proffesional_Directions).filter(
-        Proffesional_Directions.pd_code.like(f"{pd_code}")
+    pd_id = session.query(Professional_Directions).filter(
+        Professional_Directions.pd_code.like(f"{pd_code}")
     ).first().pd_id
     if session.query(Users_Directions).filter(
             Users_Directions.direction.like(f"{pd_id}"),
@@ -82,10 +82,10 @@ def new_direct(call, semant=False):
         )
         session.add(user_direction)
         session.commit()
-        return "✅ Предмет добавлен"
+        return "✅ Направление добавлено"
     else:
         del_direct(user_id, pd_code)
-        return "❌ Предмет удален"
+        return "❌ Направление удалено"
 
 
 def new_subj(call, semant=False):  # adding new subject to user's profile
@@ -129,12 +129,13 @@ def clear_direct(call):  # clear all direct of current user
         Users_Directions.user.like(f"{user_id}")
     ).delete(synchronize_session=False)
     session.commit()
-    return "Направления удалины из поиска"
+    return "Направления удалены из поиска"
 
 
 def clear_all(call):  # clear all search_params
     clear_subj(call)
     clear_direct(call)
+    clear_blacklist(call)
 
 
 def new_city_blacklist(call):  # adding new city to user's city_blacklist
@@ -149,14 +150,23 @@ def new_city_blacklist(call):  # adding new city to user's city_blacklist
     return "✅ Город добавлен в черный список"
 
 
-def current_city(city_title, user_id):  # seting city of current university in user profile
+def current_city(city_title, user_id):  # setting city of current university in user profile
     city_id = session.query(Cities).filter(
         Cities.city_title.like(f"{city_title}")).first().city_id
     session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().current_city = city_id
     session.commit()
 
 
-def current_url(url, user_id):  # seting url of current university in user profile
+def clear_blacklist(call): #clear blacklist
+    user_id = call.from_user.id
+    session.query(Users_Cities).filter(
+        Users_Cities.user.like(f"{user_id}")
+    ).delete(synchronize_session=False)
+    session.commit()
+    return "✅ Все города удалены из черного списка"
+
+
+def current_url(url, user_id):  # setting url of current university in user profile
     session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().current_url = url
     session.commit()
 
@@ -168,12 +178,12 @@ def list_of_directions_curr_user(user_id, code=True):  # return list of directio
     pd_list = []
     if code:
         for direction in directions:
-            pd_list.append(session.query(Proffesional_Directions).filter(
-                Proffesional_Directions.pd_id.like(f"{direction.direction}")).first().pd_code)
+            pd_list.append(session.query(Professional_Directions).filter(
+                Professional_Directions.pd_id.like(f"{direction.direction}")).first().pd_code)
     else:
         for direction in directions:
-            pd_list.append(session.query(Proffesional_Directions).filter(
-                Proffesional_Directions.pd_id.like(f"{direction.direction}")).first().pd_name)
+            pd_list.append(session.query(Professional_Directions).filter(
+                Professional_Directions.pd_id.like(f"{direction.direction}")).first().pd_name)
     return pd_list
 
 
@@ -192,7 +202,7 @@ def new_fav(user_id):  # adding new fav to user's fav_list
     return "✅ ВУЗ добавлен в избранное"
 
 
-def set_ege_score_curr_user(user_id, score):  # seting new ege_score for user
+def set_ege_score_curr_user(user_id, score):  # setting new ege_score for user
     session.query(Users).filter(Users.user_id.like(f"{user_id}")).first().ege_score = score
     session.commit()
     return "✅ Баллы ЕГЭ установлены!"
